@@ -1,12 +1,10 @@
-alert('Welcome to Robot Gladiators');
-
 const playerName = prompt("What is your robot's name?");
 var playerHealth = 100;
 var playerAttack = 10;
 var playerMoney = 10;
 
 const enemyNames = ["Roborto", "Nunu Bot", "Robo Trumble"];
-var enemyHealth = 10;
+var enemyHealth = 50;
 var enemyAttack = 12;
 
 var fight = function(enemyName) {
@@ -48,8 +46,16 @@ var fight = function(enemyName) {
 }
 
 for(var i = 0; i < enemyNames.length; i++) {
+    if(playerHealth > 0) {
+        alert('Welcome to Robot Gladiators! Round ' + (i+1))
+    } else {
+        alert('You have lost your robot in battle! Game over!');
+        break;
+    }
+    //pick new enemy to fight
     var currentEnemy = enemyNames[i];
-    enemyHealth = 20;
+    //reset enemyHealth before starting new fight
+    enemyHealth = 50;
     console.log(currentEnemy)
     fight(currentEnemy);
 }
