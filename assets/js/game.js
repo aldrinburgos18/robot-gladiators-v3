@@ -6,7 +6,7 @@ var playerAttack = 10;
 var playerMoney = 10;
 
 const enemyNames = ["Roborto", "Nunu Bot", "Robo Trumble"];
-var enemyHealth = 50;
+var enemyHealth = 10;
 var enemyAttack = 12;
 
 var fight = function(enemyName) {
@@ -31,6 +31,7 @@ var fight = function(enemyName) {
             //check player's health
             if(playerHealth <=0) {
                 alert(playerName + ' has died!');
+                break;
             } else {
                 alert(playerName + ' still has ' + playerHealth + ' health left.')
             }
@@ -53,7 +54,8 @@ var fight = function(enemyName) {
 }
 
 for(var i = 0; i < enemyNames.length; i++) {
-    var currentEnemy = fight(enemyNames[i]);
-    enemyHealth = 50;
+    var currentEnemy = enemyNames[i];
+    enemyHealth = 10;
+    console.log(currentEnemy)
     fight(currentEnemy);
 }
