@@ -15,33 +15,38 @@ var fight = function(enemyName) {
             var confirmSkip = confirm("Are you sure you'd like to skip this fight?");
             if(confirmSkip) {
                 alert(playerName + ' has decided to skip this fight. Goodbye!')
-                playerMoney = playerMoney - 10;
+                playerMoney = Math.max(0, playerMoney - 10);
                 break;
             }
         } else if(promptFight === 'fight') {
-        enemyHealth = enemyHealth - playerAttack;
-        console.log(playerName + ' attacked ' + enemyName + '. ' + enemyName + ' now has ' + enemyHealth + " health remaining.")
+            //generate random damage value based on player's attack power
+            var damage = randomNumber(playerAttack -3, playerAttack);
+            console.log('Player dmg: ' + damage)
+            //remove enemy's health
+            enemyHealth = Math.max(0, enemyHealth - damage);
+            console.log(playerName + ' attacked ' + enemyName + '. ' + enemyName + ' now has ' + enemyHealth + " health remaining.")
     
-        //check enemy's health
-        if(enemyHealth <= 0) {
-            alert(enemyName + ' has died.');
-            break;
-        } else {
-            alert(enemyName + ' still has ' + enemyHealth + ' health left.')
-        }
-    
-        //remove player's health
-        playerHealth = playerHealth - enemyAttack;
-        console.log(enemyName + ' attacked ' + playerName + '. ' + playerName + ' now has ' + playerHealth + ' health left.')
+            //check enemy's health
+            if(enemyHealth <= 0) {
+                alert(enemyName + ' has died.');
+                break;
+            } else {
+                alert(enemyName + ' still has ' + enemyHealth + ' health left.')
+            }
+            //generate random damage value based on enemy's attack power
+            var damage = randomNumber(enemyAttack - 2, enemyAttack);
+            console.log('Enemy dmg: ' + damage)
+            //remove player's health
+            playerHealth = Math.max(0, playerHealth - damage);
+            console.log(enemyName + ' attacked ' + playerName + '. ' + playerName + ' now has ' + playerHealth + ' health left.')
             
-        //check player's health
-        if(playerHealth <=0) {
-            alert(playerName + ' has died!');
-            break;
-        } else {
-            alert(playerName + ' still has ' + playerHealth + ' health left.')
-        }
-
+            //check player's health
+            if(playerHealth <=0) {
+                alert(playerName + ' has died!');
+                break;
+            } else {
+                alert(playerName + ' still has ' + playerHealth + ' health left.')
+            }
         } else {
             alert('You need to choose a valid option. Try again.');
         }    
@@ -61,7 +66,7 @@ var startGame = function() {
             //pick new enemy to fight
             var currentEnemy = enemyNames[i];
             //reset enemyHealth before starting new fight
-            enemyHealth = 10;
+            enemyHealth = randomNumber(40, 60);
         fight(currentEnemy);
 
         if(i < enemyNames.length -1) {
@@ -128,6 +133,12 @@ var shop = function() {
             shop();
             break;
     }
+}
+
+var randomNumber = function(min, max) {
+    var value = Math.floor(Math.random() * (max - min + 1)) + min;
+
+    return value;
 }
 
 startGame();
