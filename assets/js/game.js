@@ -4,8 +4,19 @@ var randomNumber = function(min, max) {
     return value;
 }
 
+//function to set name
+var getPlayerName = function() {
+    var name = "";
+    //check if name is blank or null
+    while (name === "" || name === null) {
+        name = prompt("What is your robot's name?")
+    }
+    console.log(name)
+    return name;
+}
+
 var player = {
-    name: prompt("What is your robot's name?"),
+    name: getPlayerName(),
     health: 100,
     attack: 10,
     money: 10,
@@ -155,7 +166,7 @@ var shop = function() {
             alert('You did not pick a valid option. Try again.')
             //call shop() again to force player to pick a valid option
             shop();
-            break;
+            break; 
     }
 }
 
