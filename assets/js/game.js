@@ -15,6 +15,28 @@ var getPlayerName = function() {
     return name;
 }
 
+var fightOrSkip = function() {
+    var promptFight = prompt("Would you like to FIGHT or SKIP this battle? Enter 'FIGHT' or 'SKIP' to choose.").trim().toLowerCase();
+
+    if (!promptFight) {
+        alert("You need to provide a valid answer! Please try again.");
+        return fightOrSkip();
+    }
+    //if player picks 'skip', confirm then stop loop
+    if(promptFight === 'skip') {
+        //confirm player wants to skip
+        var confirmSkip = confirm("Are you sure you'd like to quit?");
+
+        if(confirmSkip) {
+            alert(player.name + " has decided to skip this fight. Goodbye!");
+            //subtract money from player.money for skipping
+            playerInfo.money = Math.max(0, playerInfo.money - 10);
+            return true;
+        }
+        return false;
+    }
+}
+
 var player = {
     name: getPlayerName(),
     health: 100,
@@ -26,10 +48,11 @@ var player = {
         this.attack = 10;
     },
     refillHealth: function() {
-        if(this.money >= 7) {
+        if(this.money >= 7) {          
             window.alert("Refilling player's health by 20 for $7.");
             this.health += 20;
             this.money -= 7;
+            console.log("money: " + this.money)
         } else {
             alert("You don't have enough money!"); 
         }
@@ -48,62 +71,64 @@ var player = {
 var enemies = [
     {
         name: 'Roborto',
-        attack: randomNumber(10, 14)
+        attack: randomNumber(10, 12)
     },
     {
         name: 'Nunu Bot',
-        attack: randomNumber(10, 15)
+        attack: randomNumber(10, 13)
     },
     {
         name: 'Robo Trundle',
-        attack: randomNumber(10, 16)
+        attack: randomNumber(10, 14)
     }
 ]
 
 var fight = function(enemy) {
-    console.log(enemy)
+    //randomize turns
+    var isPlayerTurn = true;
+    if(Math.random() > 0.5) {
+        isPlayerTurn = false;
+    } 
+
     while(enemy.health > 0 && player.health > 0) {
-        var promptFight = prompt("Would you like to FIGHT or SKIP this battle? Enter 'FIGHT' or 'SKIP' to choose.").trim().toLowerCase();
-        //if player picks 'skip', confirm and then stop the loop
-        if(promptFight === 'skip') {
-            var confirmSkip = confirm("Are you sure you'd like to skip this fight?");
-            if(confirmSkip) {
-                alert(player.name + ' has decided to skip this fight. Goodbye!')
-                player.money = Math.max(0, player.money - 10);
+        //player attacks first
+        if(isPlayerTurn) {
+            if(fightOrSkip()) {
                 break;
             }
-        } else if(promptFight === 'fight') {
-            //generate random damage value based on player's attack power
-            var damage = randomNumber(player.attack -3, player.attack);
-            console.log('Player dmg: ' + damage)
-            //remove enemy's health
+
+            var damage = randomNumber(player.attack - 3, player.attack);
+
+            //remove enemy health
             enemy.health = Math.max(0, enemy.health - damage);
-            console.log(player.name + ' attacked ' + enemy.name + '. ' + enemy.name + ' now has ' + enemy.health + " health remaining.")
-    
+            console.log(player.name + " attacked " + enemy.name + " for " + damage + " attack damage. " + enemy.name + " now has " + enemy.health + " remaining.");
+
             //check enemy's health
             if(enemy.health <= 0) {
-                alert(enemy.name + ' has died.');
+                alert("You have defeated " + enemy.name + "! You have been awarded $20.");
+                player.money = player.money + 20;
+
                 break;
             } else {
-                alert(enemy.name + ' still has ' + enemy.health + ' health left.')
+                alert(player.name + " attacked " + enemy.name + " for " + damage + " attack damage. " + enemy.name + " now has " + enemy.health + " remaining.");
             }
-            //generate random damage value based on enemy's attack power
-            var damage = randomNumber(enemy.attack - 2, enemy.attack);
-            console.log('Enemy dmg: ' + damage)
+        //player gets attacked first
+        } else {
+            var damage = randomNumber(enemy.attack - 3, enemy.attack);
+
             //remove player's health
             player.health = Math.max(0, player.health - damage);
-            console.log(enemy.name + ' attacked ' + player.name + '. ' + player.name + ' now has ' + player.health + ' health left.')
-            
-            //check player's health
-            if(player.health <=0) {
-                alert(player.name + ' has died!');
+            console.log(enemy.name + " attacked " + player.name + " for " + damage + " attack damage. " + player.name + " now has " + player.health + " remaining.");
+
+            if(player.health <= 0) {
+                alert(player.name + " has died.");
+                //leave while() loop if player is dead
                 break;
             } else {
-                alert(player.name + ' still has ' + player.health + ' health left.')
+                alert(enemy.name + " attacked " + player.name + " for " + damage + " attack damage. " + player.name + " now has " + player.health + " remaining.");
             }
-        } else {
-            alert('You need to choose a valid option. Try again.');
-        }    
+        }
+        isPlayerTurn = !isPlayerTurn;
     }
 }
 
@@ -122,8 +147,12 @@ var startGame = function() {
             currentEnemy.health = randomNumber(40, 60);
         fight(currentEnemy);
 
-        if(i < enemies.length -1) {
-            shop();
+        if(player.health > 0 && i < enemies.length - 1) {
+            var storeConfirm = confirm('The fight is over, would you like to visit the store before the next round?');
+
+            if(storeConfirm) {
+                shop();
+            }
         }
         }
     }
@@ -131,11 +160,26 @@ var startGame = function() {
 }
 
 var endGame = function() {
-    // if player is still alive, player wins.
-    if(player.health > 0) {
-        alert("Great job, you've survived the game! You now have a score of " + player.money + ".");
-    } else {
-        alert("You've lost your robot in battle.")
+    //check localStorage for high schore. default to 0.
+    var highScore = localStorage.getItem('highscore');
+    if(highScore === null) {
+        highScore = 0;
+    }
+
+    //if player beats the high score, set new high score.
+    if(player.money > highScore && player.health > 0) {
+        alert("Great job, " + player.name + ". You beat the high score of " + highScore + "! Congratulations!\n\n You scored: " + player.money);
+
+        localStorage.setItem('name', player.name);
+        localStorage.setItem('highscore', player.money);        
+    } else if(player.money < highScore && player.health > 0){
+        alert("Great job, " + player.name + "! You've defeated all the enemies but did not beat the high score of: " + highScore + ". Try again next time!\n\n You scored: " + player.money);
+    } else if (player.money > highScore && player.health < 0) {
+        alert("Oh no, you've lose your robot in battle, but you beat the high score of: " + highScore + "Still impressive!");
+        localStorage.setItem('name', player.name);
+        localStorage.setItem('highscore', player.money);
+    } else if(player.money < highScore && player.health <0){
+        alert("Game over! You've lost your robot in battle. Better luck next time!")
     }
 
     //ask player if they'd like to play again
